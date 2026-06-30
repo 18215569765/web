@@ -50,6 +50,10 @@
         overflow: hidden;
       }
 
+      body.sound-gated {
+        overflow: hidden;
+      }
+
       body::before {
         content: "";
         position: fixed;
@@ -185,6 +189,140 @@
         width: 42%;
         background: linear-gradient(90deg, var(--teal), var(--amber), var(--rose));
         animation: loading 1.15s ease-in-out infinite;
+      }
+
+      .sound-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 95;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        background:
+          radial-gradient(circle at 50% 40%, rgba(85, 255, 214, 0.18), transparent 30%),
+          radial-gradient(circle at 18% 78%, rgba(255, 111, 145, 0.18), transparent 28%),
+          linear-gradient(135deg, rgba(5, 11, 16, 0.92), rgba(7, 16, 20, 0.82) 52%, rgba(21, 9, 20, 0.92));
+        backdrop-filter: blur(16px);
+        transition:
+          opacity 520ms ease,
+          visibility 520ms ease;
+      }
+
+      body.ready.sound-gated .sound-gate {
+        pointer-events: auto;
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .sound-gate::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          repeating-linear-gradient(0deg, rgba(239, 252, 255, 0.05) 0 1px, transparent 1px 9px),
+          linear-gradient(120deg, transparent 0 42%, rgba(85, 255, 214, 0.22) 48%, transparent 54%);
+        mix-blend-mode: screen;
+        opacity: 0.55;
+        animation: scan 3.2s linear infinite;
+      }
+
+      .sound-gate-button {
+        width: min(520px, calc(100vw - 48px));
+        min-height: 300px;
+        border: 1px solid rgba(85, 255, 214, 0.38);
+        border-radius: 8px;
+        color: var(--ink);
+        background:
+          linear-gradient(135deg, rgba(6, 18, 24, 0.82), rgba(18, 8, 25, 0.74)),
+          rgba(5, 16, 22, 0.84);
+        box-shadow:
+          0 28px 80px rgba(0, 0, 0, 0.42),
+          0 0 52px rgba(85, 255, 214, 0.18),
+          inset 0 0 38px rgba(85, 255, 214, 0.08);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        gap: 18px;
+        padding: 34px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sound-gate-button::before {
+        content: "";
+        position: absolute;
+        inset: 18px;
+        border: 1px solid rgba(255, 196, 93, 0.24);
+        border-radius: 8px;
+        pointer-events: none;
+        animation: hudFlicker 2.4s ease-in-out infinite;
+      }
+
+      .sound-gate-button::after {
+        content: "";
+        position: absolute;
+        inset: -36%;
+        background: conic-gradient(from 90deg, transparent, rgba(85, 255, 214, 0.18), transparent, rgba(255, 111, 145, 0.16), transparent);
+        animation: slowSpin 7s linear infinite;
+      }
+
+      .sound-gate-inner {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        justify-items: center;
+        gap: 14px;
+      }
+
+      .sound-gate-kicker {
+        color: var(--teal);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      .sound-gate-title {
+        font-size: clamp(38px, 9vw, 72px);
+        font-weight: 950;
+        line-height: 0.95;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(239, 252, 255, 0.9);
+        text-shadow:
+          0 0 22px rgba(85, 255, 214, 0.4),
+          0 0 46px rgba(255, 111, 145, 0.2);
+      }
+
+      .sound-gate-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--amber);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .sound-gate-status::before,
+      .sound-gate-status::after {
+        content: "";
+        width: 30px;
+        height: 1px;
+        background: currentColor;
+        box-shadow: 0 0 14px currentColor;
+      }
+
+      .sound-gate-error {
+        min-height: 18px;
+        color: rgba(255, 111, 145, 0.92);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.08em;
       }
 
       .cursor-ring,
@@ -1770,7 +1908,7 @@
       }
     </style>
   </head>
-  <body class="is-loading">
+  <body class="is-loading sound-gated">
     <div class="loader" aria-hidden="true">
       <div class="loader-core">
         <div class="loader-ring">X</div>
@@ -1785,6 +1923,16 @@
     <audio id="bgMusic" autoplay preload="auto" loop playsinline>
       <source src="generated-assets/cyber-dj-loop.mp3" type="audio/mpeg" />
     </audio>
+    <div class="sound-gate" id="soundGate">
+      <button class="sound-gate-button" type="button" id="soundGateButton" aria-label="进入 Cyber Lab 并播放音乐">
+        <span class="sound-gate-inner">
+          <span class="sound-gate-kicker">Audio Link Armed</span>
+          <span class="sound-gate-title">ENTER</span>
+          <span class="sound-gate-status">Start DJ</span>
+          <span class="sound-gate-error" id="soundGateError" aria-live="polite"></span>
+        </span>
+      </button>
+    </div>
     <div class="site-shell">
       <header class="topbar">
         <nav class="nav" aria-label="主导航">
@@ -2016,6 +2164,8 @@
       const audioToggle = document.getElementById("audioToggle");
       const audioLabel = document.getElementById("audioLabel");
       const bgMusic = document.getElementById("bgMusic");
+      const soundGateButton = document.getElementById("soundGateButton");
+      const soundGateError = document.getElementById("soundGateError");
       const lines = [
         "sub2api route verified",
         "container mesh listening",
@@ -2032,6 +2182,10 @@
       let isMusicPlaying = false;
       const isTouch = window.matchMedia("(pointer: coarse)").matches;
       bgMusic.volume = 0.42;
+
+      function unlockSoundGate() {
+        document.body.classList.remove("sound-gated");
+      }
 
       function resize() {
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -2218,14 +2372,17 @@
       }
 
       function startMusic() {
-        if (isMusicPlaying) return Promise.resolve();
+        if (isMusicPlaying) return Promise.resolve(true);
         bgMusic.muted = false;
         bgMusic.volume = 0.42;
         return bgMusic.play().then(() => {
+          unlockSoundGate();
           setMusicState(true, "DJ 正在播放");
           addLog();
+          return true;
         }).catch(() => {
           setMusicState(false, "点击启动 DJ");
+          return false;
         });
       }
 
@@ -2236,16 +2393,32 @@
       }
 
       function tryAutoplayMusic() {
-        startMusic().then(() => {
+        startMusic().then((started) => {
           if (!isMusicPlaying) setMusicState(false, "点击启动 DJ");
+          if (!started) document.body.classList.add("sound-gated");
         });
       }
 
       function startMusicFromUserGesture(event) {
-        if (event.target.closest("#audioToggle")) return;
-        if (!isMusicPlaying) startMusic();
-        window.removeEventListener("pointerdown", startMusicFromUserGesture);
-        window.removeEventListener("keydown", startMusicFromUserGesture);
+        if (event.target.closest("#audioToggle, #soundGateButton")) return;
+        if (!isMusicPlaying) {
+          startMusic().then((started) => {
+            if (!started) return;
+            window.removeEventListener("pointerdown", startMusicFromUserGesture);
+            window.removeEventListener("keydown", startMusicFromUserGesture);
+          });
+        }
+      }
+
+      function enterSiteWithMusic() {
+        soundGateError.textContent = "";
+        startMusic().then((started) => {
+          if (started) {
+            unlockSoundGate();
+            return;
+          }
+          soundGateError.textContent = "Click again to unlock audio";
+        });
       }
 
       function toggleMusic() {
@@ -2253,7 +2426,9 @@
           stopMusic();
           return;
         }
-        startMusic();
+        startMusic().then((started) => {
+          if (started) unlockSoundGate();
+        });
       }
 
       function updateClock() {
@@ -2373,8 +2548,10 @@
         spawnBurst(event.clientX, event.clientY);
       });
       audioToggle.addEventListener("click", toggleMusic);
+      soundGateButton.addEventListener("click", enterSiteWithMusic);
       bgMusic.addEventListener("play", () => setMusicState(true, "DJ 正在播放"));
       bgMusic.addEventListener("pause", () => setMusicState(false, "启动 DJ"));
+      bgMusic.addEventListener("playing", unlockSoundGate);
       window.addEventListener("pointerdown", startMusicFromUserGesture);
       window.addEventListener("keydown", startMusicFromUserGesture);
       window.addEventListener("scroll", setScrollVars, { passive: true });
