@@ -1036,36 +1036,6 @@
         color: rgba(239, 252, 255, 0.52);
       }
 
-      .toast {
-        position: fixed;
-        right: 18px;
-        bottom: 18px;
-        z-index: 90;
-        max-width: min(360px, calc(100vw - 36px));
-        border: 1px solid rgba(85, 255, 214, 0.42);
-        border-radius: 8px;
-        padding: 14px 16px;
-        background: rgba(5, 15, 20, 0.88);
-        box-shadow:
-          var(--shadow),
-          0 0 38px rgba(85, 255, 214, 0.16);
-        color: rgba(239, 252, 255, 0.92);
-        font-size: 13px;
-        line-height: 1.5;
-        backdrop-filter: blur(16px);
-        transform: translateY(18px);
-        opacity: 0;
-        pointer-events: none;
-        transition:
-          opacity 220ms ease,
-          transform 220ms ease;
-      }
-
-      .toast.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
       .footer-inner {
         width: min(1180px, calc(100% - 32px));
         margin: 0 auto;
@@ -1386,28 +1356,28 @@
           </div>
 
           <div class="dock-grid">
-            <a class="dock-card reveal tilt" href="#dock" data-placeholder="AI Hub">
+            <a class="dock-card reveal tilt" href="https://sub2api.273359.xyz" target="_blank" rel="noopener">
               <div class="dock-icon">AI</div>
               <div>
                 <h3>AI Hub</h3>
                 <p>模型、对话、Agent 和 API 管理入口。</p>
               </div>
             </a>
-            <a class="dock-card reveal tilt" style="--delay: 80ms" href="#dock" data-placeholder="Toolbox">
+            <a class="dock-card reveal tilt" style="--delay: 80ms" href="https://it-tools.273359.xyz" target="_blank" rel="noopener">
               <div class="dock-icon">TL</div>
               <div>
                 <h3>Toolbox</h3>
                 <p>脚本、检测、转换和日常运维工具。</p>
               </div>
             </a>
-            <a class="dock-card reveal tilt" style="--delay: 160ms" href="#dock" data-placeholder="Status">
+            <a class="dock-card reveal tilt" style="--delay: 160ms" href="https://ora-status.273359.xyz" target="_blank" rel="noopener">
               <div class="dock-icon">UP</div>
               <div>
                 <h3>Status</h3>
                 <p>服务可用性、延迟和健康状态看板。</p>
               </div>
             </a>
-            <a class="dock-card reveal tilt" style="--delay: 240ms" href="#dock" data-placeholder="Knowledge">
+            <a class="dock-card reveal tilt" style="--delay: 240ms" href="https://rdm.273359.xyz" target="_blank" rel="noopener">
               <div class="dock-icon">KB</div>
               <div>
                 <h3>Knowledge</h3>
@@ -1479,8 +1449,10 @@
               <h3>Connect</h3>
               <div class="contact-stack">
                 <a class="contact-link" href="mailto:admin@273359.xyz"><span>Email</span><span>admin@273359.xyz</span></a>
-                <a class="contact-link" href="#identity" data-placeholder="Status"><span>Status</span><span>coming soon</span></a>
-                <a class="contact-link" href="#identity" data-placeholder="Docs"><span>Docs</span><span>coming soon</span></a>
+                <a class="contact-link" href="https://ora-status.273359.xyz" target="_blank" rel="noopener"><span>Status</span><span>ora-status.273359.xyz</span></a>
+                <a class="contact-link" href="https://probe.273359.xyz" target="_blank" rel="noopener"><span>Probe</span><span>probe.273359.xyz</span></a>
+                <a class="contact-link" href="https://sub.273359.xyz" target="_blank" rel="noopener"><span>Sub</span><span>sub.273359.xyz</span></a>
+                <a class="contact-link" href="https://rdm.273359.xyz" target="_blank" rel="noopener"><span>Docs</span><span>rdm.273359.xyz</span></a>
               </div>
             </div>
           </div>
@@ -1494,7 +1466,6 @@
         </div>
       </footer>
     </div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script>
       const root = document.documentElement;
@@ -1508,7 +1479,6 @@
       const latency = document.getElementById("latency");
       const cursorRing = document.getElementById("cursorRing");
       const cursorDot = document.getElementById("cursorDot");
-      const toast = document.getElementById("toast");
       const lines = [
         "sub2api route verified",
         "container mesh listening",
@@ -1521,7 +1491,6 @@
       let tick = 0;
       let pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
       let ring = { x: pointer.x, y: pointer.y };
-      let toastTimer = 0;
       const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
       function resize() {
@@ -1684,27 +1653,6 @@
         root.style.setProperty("--scroll", `${window.scrollY}`);
       }
 
-      function showToast(message) {
-        window.clearTimeout(toastTimer);
-        toast.textContent = message;
-        toast.classList.add("show");
-        toastTimer = window.setTimeout(() => {
-          toast.classList.remove("show");
-        }, 2600);
-      }
-
-      function setupPlaceholderLinks() {
-        const links = document.querySelectorAll("[data-placeholder]");
-        for (const link of links) {
-          link.addEventListener("click", (event) => {
-            event.preventDefault();
-            const name = link.getAttribute("data-placeholder");
-            showToast(`${name} 入口还没绑定真实地址，填上服务地址后就能跳转。`);
-            addLog();
-          });
-        }
-      }
-
       window.addEventListener("resize", resize);
       window.addEventListener("pointermove", (event) => {
         pointer = { x: event.clientX, y: event.clientY };
@@ -1729,7 +1677,6 @@
       drawRain();
       setupReveal();
       setupTilt();
-      setupPlaceholderLinks();
       setScrollVars();
       if (!isTouch) updateCursor();
       updateClock();
