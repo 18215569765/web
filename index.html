@@ -588,6 +588,7 @@
       }
 
       .button {
+        appearance: none;
         min-height: 46px;
         display: inline-flex;
         align-items: center;
@@ -598,6 +599,7 @@
         border-radius: 8px;
         background: rgba(7, 19, 24, 0.7);
         color: var(--ink);
+        font-family: inherit;
         font-weight: 800;
         font-size: 14px;
         box-shadow: var(--shadow);
@@ -640,6 +642,48 @@
         box-shadow:
           var(--shadow),
           0 0 34px rgba(85, 255, 214, 0.18);
+      }
+
+      .audio-toggle {
+        cursor: pointer;
+      }
+
+      .audio-toggle.is-playing {
+        border-color: rgba(255, 196, 93, 0.72);
+        background: rgba(26, 18, 9, 0.72);
+        box-shadow:
+          var(--shadow),
+          0 0 34px rgba(255, 196, 93, 0.18);
+      }
+
+      .audio-eq {
+        width: 20px;
+        height: 18px;
+        display: inline-flex;
+        align-items: end;
+        justify-content: center;
+        gap: 3px;
+      }
+
+      .audio-eq i {
+        width: 3px;
+        height: 7px;
+        border-radius: 3px;
+        background: currentColor;
+        box-shadow: 0 0 10px rgba(85, 255, 214, 0.45);
+        opacity: 0.72;
+      }
+
+      .audio-toggle.is-playing .audio-eq i {
+        animation: eqPulse 780ms ease-in-out infinite;
+      }
+
+      .audio-toggle.is-playing .audio-eq i:nth-child(2) {
+        animation-delay: 110ms;
+      }
+
+      .audio-toggle.is-playing .audio-eq i:nth-child(3) {
+        animation-delay: 220ms;
       }
 
       .terminal {
@@ -1052,6 +1096,93 @@
         gap: 12px;
       }
 
+      .signal-stack {
+        display: grid;
+        gap: 14px;
+      }
+
+      .signal-video {
+        position: relative;
+        min-height: 250px;
+        overflow: hidden;
+        border: 1px solid rgba(239, 252, 255, 0.18);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 28% 24%, rgba(85, 255, 214, 0.14), transparent 34%),
+          linear-gradient(135deg, rgba(5, 15, 20, 0.92), rgba(17, 8, 22, 0.78));
+        box-shadow:
+          var(--shadow),
+          inset 0 0 34px rgba(85, 255, 214, 0.08);
+        transform-style: preserve-3d;
+      }
+
+      .signal-video::before,
+      .signal-video::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .signal-video::before {
+        z-index: 2;
+        background:
+          repeating-linear-gradient(0deg, rgba(239, 252, 255, 0.055) 0 1px, transparent 1px 7px),
+          linear-gradient(120deg, transparent 0 32%, rgba(85, 255, 214, 0.12) 38%, transparent 45%);
+        mix-blend-mode: screen;
+        animation: videoPanelSweep 4.4s ease-in-out infinite;
+      }
+
+      .signal-video::after {
+        z-index: 1;
+        box-shadow:
+          inset 0 0 48px rgba(85, 255, 214, 0.14),
+          inset 0 0 100px rgba(255, 111, 145, 0.1);
+      }
+
+      .signal-video canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .signal-video-ui {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        top: 12px;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        color: rgba(239, 252, 255, 0.78);
+        font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .signal-video-ui span:first-child {
+        color: var(--teal);
+        text-shadow: 0 0 14px rgba(85, 255, 214, 0.38);
+      }
+
+      .signal-video-caption {
+        position: absolute;
+        left: 14px;
+        bottom: 13px;
+        z-index: 3;
+        color: rgba(239, 252, 255, 0.58);
+        font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
       .feed-item {
         padding: 15px;
         display: grid;
@@ -1310,6 +1441,31 @@
         }
         50% {
           background-position: 100% 50%;
+        }
+      }
+
+      @keyframes eqPulse {
+        0%,
+        100% {
+          height: 6px;
+          opacity: 0.58;
+        }
+        50% {
+          height: 18px;
+          opacity: 1;
+        }
+      }
+
+      @keyframes videoPanelSweep {
+        0%,
+        28% {
+          background-position: 0 0, -280px 0;
+        }
+        58% {
+          background-position: 0 8px, 260px 0;
+        }
+        100% {
+          background-position: 0 0, 260px 0;
         }
       }
 
@@ -1620,6 +1776,10 @@
             <div class="hero-actions">
               <a class="button primary" href="#dock">进入控制台 <span>+</span></a>
               <a class="button" href="mailto:admin@273359.xyz">admin@273359.xyz</a>
+              <button class="button audio-toggle" type="button" id="audioToggle" aria-pressed="false">
+                <span class="audio-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span id="audioLabel">启动背景音</span>
+              </button>
             </div>
           </div>
 
@@ -1710,22 +1870,32 @@
                 页面用静态文件构建，轻量、抗造、迁移方便。
               </p>
             </div>
-            <div class="feed reveal" style="--delay: 160ms" aria-label="信号墙">
-              <div class="feed-item">
-                <div class="feed-time">00:01</div>
-                <div><strong>Gateway active</strong><span>API 路由已接入，流量等待调度。</span></div>
+            <div class="signal-stack reveal" style="--delay: 160ms">
+              <div class="signal-video tilt" aria-label="实时信号影像">
+                <canvas id="signalVideo" aria-hidden="true"></canvas>
+                <div class="signal-video-ui">
+                  <span>Live Node Vision</span>
+                  <span>273359.XYZ</span>
+                </div>
+                <div class="signal-video-caption">route map / edge pulse / gateway scan</div>
               </div>
-              <div class="feed-item">
-                <div class="feed-time">00:08</div>
-                <div><strong>Agent channel open</strong><span>自动化任务队列可用。</span></div>
-              </div>
-              <div class="feed-item">
-                <div class="feed-time">00:13</div>
-                <div><strong>Storage synced</strong><span>项目文件与服务配置保持一致。</span></div>
-              </div>
-              <div class="feed-item">
-                <div class="feed-time">00:21</div>
-                <div><strong>Skyline rendered</strong><span>城市节点背景加载完成。</span></div>
+              <div class="feed" aria-label="信号墙">
+                <div class="feed-item">
+                  <div class="feed-time">00:01</div>
+                  <div><strong>Gateway active</strong><span>API 路由已接入，流量等待调度。</span></div>
+                </div>
+                <div class="feed-item">
+                  <div class="feed-time">00:08</div>
+                  <div><strong>Agent channel open</strong><span>自动化任务队列可用。</span></div>
+                </div>
+                <div class="feed-item">
+                  <div class="feed-time">00:13</div>
+                  <div><strong>Storage synced</strong><span>项目文件与服务配置保持一致。</span></div>
+                </div>
+                <div class="feed-item">
+                  <div class="feed-time">00:21</div>
+                  <div><strong>Skyline rendered</strong><span>城市节点背景加载完成。</span></div>
+                </div>
               </div>
             </div>
           </div>
@@ -1786,12 +1956,16 @@
       const ctx = canvas.getContext("2d", { alpha: true });
       const rainCanvas = document.getElementById("rain");
       const rainCtx = rainCanvas.getContext("2d", { alpha: true });
+      const signalCanvas = document.getElementById("signalVideo");
+      const signalCtx = signalCanvas.getContext("2d", { alpha: true });
       const terminal = document.getElementById("terminal");
       const clock = document.getElementById("clock");
       const uptime = document.getElementById("uptime");
       const latency = document.getElementById("latency");
       const cursorRing = document.getElementById("cursorRing");
       const cursorDot = document.getElementById("cursorDot");
+      const audioToggle = document.getElementById("audioToggle");
+      const audioLabel = document.getElementById("audioLabel");
       const lines = [
         "sub2api route verified",
         "container mesh listening",
@@ -1802,22 +1976,33 @@
       let particles = [];
       let rainColumns = [];
       let tick = 0;
+      let videoTick = 0;
       let pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
       let ring = { x: pointer.x, y: pointer.y };
+      let audioContext;
+      let masterGain;
+      let musicNodes = [];
+      let isMusicPlaying = false;
       const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
       function resize() {
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        const signalRect = signalCanvas.getBoundingClientRect();
         canvas.width = Math.floor(window.innerWidth * ratio);
         canvas.height = Math.floor(window.innerHeight * ratio);
         rainCanvas.width = Math.floor(window.innerWidth * ratio);
         rainCanvas.height = Math.floor(window.innerHeight * ratio);
+        signalCanvas.width = Math.max(1, Math.floor(signalRect.width * ratio));
+        signalCanvas.height = Math.max(1, Math.floor(signalRect.height * ratio));
         canvas.style.width = `${window.innerWidth}px`;
         canvas.style.height = `${window.innerHeight}px`;
         rainCanvas.style.width = `${window.innerWidth}px`;
         rainCanvas.style.height = `${window.innerHeight}px`;
+        signalCanvas.style.width = `${signalRect.width}px`;
+        signalCanvas.style.height = `${signalRect.height}px`;
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         rainCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        signalCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
         const count = Math.min(90, Math.max(34, Math.floor(window.innerWidth / 18)));
         particles = Array.from({ length: count }, () => ({
           x: Math.random() * window.innerWidth,
@@ -1888,6 +2073,168 @@
         }
         rainCtx.globalAlpha = 1;
         requestAnimationFrame(drawRain);
+      }
+
+      function drawSignalVideo() {
+        const width = signalCanvas.clientWidth || 1;
+        const height = signalCanvas.clientHeight || 1;
+        videoTick += 1;
+        signalCtx.clearRect(0, 0, width, height);
+
+        const gradient = signalCtx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, "rgba(6, 20, 28, 0.96)");
+        gradient.addColorStop(0.48, "rgba(10, 28, 36, 0.82)");
+        gradient.addColorStop(1, "rgba(22, 8, 28, 0.92)");
+        signalCtx.fillStyle = gradient;
+        signalCtx.fillRect(0, 0, width, height);
+
+        signalCtx.strokeStyle = "rgba(85, 255, 214, 0.09)";
+        signalCtx.lineWidth = 1;
+        const grid = 32;
+        const offset = (videoTick * 0.7) % grid;
+        for (let x = -grid + offset; x < width + grid; x += grid) {
+          signalCtx.beginPath();
+          signalCtx.moveTo(x, 0);
+          signalCtx.lineTo(x + height * 0.28, height);
+          signalCtx.stroke();
+        }
+        for (let y = (videoTick * 0.45) % grid; y < height + grid; y += grid) {
+          signalCtx.beginPath();
+          signalCtx.moveTo(0, y);
+          signalCtx.lineTo(width, y);
+          signalCtx.stroke();
+        }
+
+        const nodes = [
+          [0.18, 0.32, "SUB"],
+          [0.42, 0.58, "API"],
+          [0.68, 0.26, "RDM"],
+          [0.82, 0.68, "UP"],
+          [0.3, 0.78, "DNS"],
+        ];
+
+        signalCtx.lineWidth = 1.5;
+        for (let i = 0; i < nodes.length; i += 1) {
+          const current = nodes[i];
+          const next = nodes[(i + 1) % nodes.length];
+          const pulse = (Math.sin(videoTick / 18 + i) + 1) / 2;
+          signalCtx.strokeStyle = `rgba(85, 255, 214, ${0.18 + pulse * 0.36})`;
+          signalCtx.beginPath();
+          signalCtx.moveTo(current[0] * width, current[1] * height);
+          signalCtx.lineTo(next[0] * width, next[1] * height);
+          signalCtx.stroke();
+        }
+
+        for (let i = 0; i < nodes.length; i += 1) {
+          const [nx, ny, label] = nodes[i];
+          const x = nx * width;
+          const y = ny * height;
+          const pulse = (Math.sin(videoTick / 12 + i * 1.8) + 1) / 2;
+          signalCtx.beginPath();
+          signalCtx.fillStyle = `rgba(85, 255, 214, ${0.32 + pulse * 0.44})`;
+          signalCtx.arc(x, y, 5 + pulse * 5, 0, Math.PI * 2);
+          signalCtx.fill();
+          signalCtx.strokeStyle = "rgba(255, 196, 93, 0.48)";
+          signalCtx.beginPath();
+          signalCtx.arc(x, y, 17 + pulse * 12, 0, Math.PI * 2);
+          signalCtx.stroke();
+          signalCtx.fillStyle = "rgba(239, 252, 255, 0.78)";
+          signalCtx.font = "11px Cascadia Code, Consolas, monospace";
+          signalCtx.fillText(label, x + 14, y - 12);
+        }
+
+        const scannerY = ((videoTick * 2.2) % (height + 80)) - 40;
+        const scan = signalCtx.createLinearGradient(0, scannerY - 26, 0, scannerY + 26);
+        scan.addColorStop(0, "rgba(85, 255, 214, 0)");
+        scan.addColorStop(0.5, "rgba(85, 255, 214, 0.24)");
+        scan.addColorStop(1, "rgba(85, 255, 214, 0)");
+        signalCtx.fillStyle = scan;
+        signalCtx.fillRect(0, scannerY - 26, width, 52);
+
+        signalCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        for (let i = 0; i < 16; i += 1) {
+          const x = (Math.sin(videoTick / 15 + i * 2.1) * 0.5 + 0.5) * width;
+          const y = (Math.cos(videoTick / 17 + i * 1.7) * 0.5 + 0.5) * height;
+          signalCtx.fillRect(x, y, 2, 2);
+        }
+
+        requestAnimationFrame(drawSignalVideo);
+      }
+
+      function createOscillator(frequency, type, gainValue, destination) {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = type;
+        oscillator.frequency.value = frequency;
+        gain.gain.value = gainValue;
+        oscillator.connect(gain);
+        gain.connect(destination);
+        oscillator.start();
+        musicNodes.push(oscillator, gain);
+        return { oscillator, gain };
+      }
+
+      function startMusic() {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (isMusicPlaying) return;
+        audioContext.resume();
+        masterGain = audioContext.createGain();
+        masterGain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+        masterGain.gain.exponentialRampToValueAtTime(0.16, audioContext.currentTime + 1.2);
+        masterGain.connect(audioContext.destination);
+
+        const filter = audioContext.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.value = 920;
+        filter.Q.value = 0.8;
+        filter.connect(masterGain);
+
+        createOscillator(55, "sawtooth", 0.16, filter);
+        createOscillator(82.41, "triangle", 0.08, filter);
+        createOscillator(110, "sine", 0.045, filter);
+
+        const lfo = audioContext.createOscillator();
+        const lfoGain = audioContext.createGain();
+        lfo.frequency.value = 0.08;
+        lfoGain.gain.value = 420;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filter.frequency);
+        lfo.start();
+        musicNodes.push(lfo, lfoGain, filter, masterGain);
+
+        isMusicPlaying = true;
+        audioToggle.classList.add("is-playing");
+        audioToggle.setAttribute("aria-pressed", "true");
+        audioLabel.textContent = "背景音运行中";
+        addLog();
+      }
+
+      function stopMusic() {
+        if (!isMusicPlaying || !audioContext) return;
+        const nodesToStop = musicNodes;
+        musicNodes = [];
+        masterGain.gain.cancelScheduledValues(audioContext.currentTime);
+        masterGain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.16);
+        window.setTimeout(() => {
+          for (const node of nodesToStop) {
+            if (typeof node.stop === "function") node.stop();
+            if (typeof node.disconnect === "function") node.disconnect();
+          }
+        }, 420);
+        isMusicPlaying = false;
+        audioToggle.classList.remove("is-playing");
+        audioToggle.setAttribute("aria-pressed", "false");
+        audioLabel.textContent = "启动背景音";
+      }
+
+      function toggleMusic() {
+        if (isMusicPlaying) {
+          stopMusic();
+          return;
+        }
+        startMusic();
       }
 
       function updateClock() {
@@ -2006,6 +2353,7 @@
       window.addEventListener("pointerdown", (event) => {
         spawnBurst(event.clientX, event.clientY);
       });
+      audioToggle.addEventListener("click", toggleMusic);
       window.addEventListener("scroll", setScrollVars, { passive: true });
       document.addEventListener("pointerover", (event) => {
         if (event.target.closest("a, button, .tilt")) document.body.classList.add("cursor-active");
@@ -2017,6 +2365,7 @@
       resize();
       draw();
       drawRain();
+      drawSignalVideo();
       setupReveal();
       setupTilt();
       setScrollVars();
