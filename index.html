@@ -664,6 +664,11 @@
         cursor: pointer;
       }
 
+      .audio-toggle.needs-action {
+        border-color: rgba(85, 255, 214, 0.52);
+        animation: buttonPulse 1.2s ease-in-out infinite;
+      }
+
       .audio-toggle.is-playing {
         border-color: rgba(255, 196, 93, 0.72);
         background: rgba(26, 18, 9, 0.72);
@@ -1345,6 +1350,15 @@
         font-size: 12px;
       }
 
+      .music-credit a {
+        color: rgba(85, 255, 214, 0.76);
+        text-decoration: none;
+      }
+
+      .music-credit a:hover {
+        color: var(--text);
+      }
+
       @keyframes pulse {
         0%,
         100% {
@@ -1469,6 +1483,16 @@
         50% {
           height: 18px;
           opacity: 1;
+        }
+      }
+
+      @keyframes buttonPulse {
+        0%,
+        100% {
+          box-shadow: var(--shadow), 0 0 0 rgba(85, 255, 214, 0);
+        }
+        50% {
+          box-shadow: var(--shadow), 0 0 26px rgba(85, 255, 214, 0.24);
         }
       }
 
@@ -1758,6 +1782,9 @@
     <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
     <canvas class="ambient-canvas" id="ambient" aria-hidden="true"></canvas>
     <canvas class="rain-canvas" id="rain" aria-hidden="true"></canvas>
+    <audio id="bgMusic" autoplay preload="auto" loop playsinline>
+      <source src="generated-assets/cyber-dj-loop.mp3" type="audio/mpeg" />
+    </audio>
     <div class="site-shell">
       <header class="topbar">
         <nav class="nav" aria-label="主导航">
@@ -1965,6 +1992,9 @@
         <div class="footer-inner">
           <span>273359.XYZ / Cyber Lab</span>
           <span>Built for fast static hosting</span>
+          <span class="music-credit">
+            Music: <a href="https://ccmixter.org/files/Mr_Pepino/70972" target="_blank" rel="noreferrer">The Captain Is Mad (live remix)</a> by Mr. Pepino / CC BY 4.0
+          </span>
         </div>
       </footer>
     </div>
@@ -1985,6 +2015,7 @@
       const cursorDot = document.getElementById("cursorDot");
       const audioToggle = document.getElementById("audioToggle");
       const audioLabel = document.getElementById("audioLabel");
+      const bgMusic = document.getElementById("bgMusic");
       const lines = [
         "sub2api route verified",
         "container mesh listening",
@@ -1998,12 +2029,9 @@
       let videoTick = 0;
       let pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
       let ring = { x: pointer.x, y: pointer.y };
-      let audioContext;
-      let masterGain;
-      let beatTimer;
-      let musicNodes = [];
       let isMusicPlaying = false;
       const isTouch = window.matchMedia("(pointer: coarse)").matches;
+      bgMusic.volume = 0.42;
 
       function resize() {
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -2181,176 +2209,43 @@
         requestAnimationFrame(drawSignalVideo);
       }
 
-      function createOscillator(frequency, type, gainValue, destination, startTime = audioContext.currentTime, stopTime) {
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        oscillator.type = type;
-        oscillator.frequency.value = frequency;
-        gain.gain.value = gainValue;
-        oscillator.connect(gain);
-        gain.connect(destination);
-        oscillator.start(startTime);
-        if (stopTime) oscillator.stop(stopTime);
-        musicNodes.push(oscillator, gain);
-        return { oscillator, gain };
-      }
-
-      function scheduleKick(time) {
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(148, time);
-        oscillator.frequency.exponentialRampToValueAtTime(42, time + 0.18);
-        gain.gain.setValueAtTime(0.0001, time);
-        gain.gain.exponentialRampToValueAtTime(0.72, time + 0.012);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.26);
-        oscillator.connect(gain);
-        gain.connect(masterGain);
-        oscillator.start(time);
-        oscillator.stop(time + 0.28);
-        musicNodes.push(oscillator, gain);
-      }
-
-      function scheduleHat(time, accent = 0.28) {
-        const length = audioContext.sampleRate * 0.055;
-        const buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < length; i += 1) {
-          data[i] = (Math.random() * 2 - 1) * (1 - i / length);
-        }
-        const source = audioContext.createBufferSource();
-        const filter = audioContext.createBiquadFilter();
-        const gain = audioContext.createGain();
-        filter.type = "highpass";
-        filter.frequency.value = 6200;
-        gain.gain.setValueAtTime(0.0001, time);
-        gain.gain.exponentialRampToValueAtTime(accent, time + 0.006);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.06);
-        source.buffer = buffer;
-        source.connect(filter);
-        filter.connect(gain);
-        gain.connect(masterGain);
-        source.start(time);
-        source.stop(time + 0.07);
-        musicNodes.push(source, filter, gain);
-      }
-
-      function scheduleSnare(time) {
-        const length = audioContext.sampleRate * 0.16;
-        const buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < length; i += 1) {
-          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2);
-        }
-        const source = audioContext.createBufferSource();
-        const filter = audioContext.createBiquadFilter();
-        const gain = audioContext.createGain();
-        filter.type = "bandpass";
-        filter.frequency.value = 1850;
-        filter.Q.value = 1.2;
-        gain.gain.setValueAtTime(0.0001, time);
-        gain.gain.exponentialRampToValueAtTime(0.34, time + 0.014);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.17);
-        source.buffer = buffer;
-        source.connect(filter);
-        filter.connect(gain);
-        gain.connect(masterGain);
-        source.start(time);
-        source.stop(time + 0.18);
-        musicNodes.push(source, filter, gain);
-      }
-
-      function scheduleBass(time, frequency) {
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        const filter = audioContext.createBiquadFilter();
-        oscillator.type = "sawtooth";
-        oscillator.frequency.setValueAtTime(frequency, time);
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(280, time);
-        filter.frequency.exponentialRampToValueAtTime(760, time + 0.05);
-        gain.gain.setValueAtTime(0.0001, time);
-        gain.gain.exponentialRampToValueAtTime(0.22, time + 0.012);
-        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.2);
-        oscillator.connect(filter);
-        filter.connect(gain);
-        gain.connect(masterGain);
-        oscillator.start(time);
-        oscillator.stop(time + 0.22);
-        musicNodes.push(oscillator, filter, gain);
-      }
-
-      function scheduleDjBar(startTime) {
-        const bpm = 128;
-        const step = 60 / bpm / 2;
-        const bassline = [55, 55, 65.41, 55, 73.42, 65.41, 55, 82.41];
-        for (let i = 0; i < 16; i += 1) {
-          const time = startTime + i * step;
-          scheduleHat(time, i % 4 === 0 ? 0.34 : 0.22);
-          if (i % 4 === 0) scheduleKick(time);
-          if (i === 4 || i === 12) scheduleSnare(time);
-          if (i % 2 === 0) scheduleBass(time, bassline[(i / 2) % bassline.length]);
-        }
+      function setMusicState(playing, label) {
+        isMusicPlaying = playing;
+        audioToggle.classList.toggle("is-playing", playing);
+        audioToggle.classList.toggle("needs-action", !playing && label === "点击启动 DJ");
+        audioToggle.setAttribute("aria-pressed", String(playing));
+        audioLabel.textContent = label || (playing ? "DJ 正在播放" : "启动 DJ");
       }
 
       function startMusic() {
-        if (!audioContext) {
-          audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (isMusicPlaying) return;
-        audioContext.resume();
-        masterGain = audioContext.createGain();
-        masterGain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-        masterGain.gain.exponentialRampToValueAtTime(0.34, audioContext.currentTime + 0.8);
-        masterGain.connect(audioContext.destination);
-
-        const padFilter = audioContext.createBiquadFilter();
-        padFilter.type = "lowpass";
-        padFilter.frequency.value = 720;
-        padFilter.Q.value = 0.7;
-        padFilter.connect(masterGain);
-        createOscillator(110, "sawtooth", 0.018, padFilter);
-        createOscillator(220, "triangle", 0.012, padFilter);
-
-        const barLength = 3.75;
-        let nextBar = audioContext.currentTime + 0.05;
-        const scheduleAhead = () => {
-          while (nextBar < audioContext.currentTime + 2.4) {
-            scheduleDjBar(nextBar);
-            nextBar += barLength;
-          }
-        };
-        scheduleAhead();
-        beatTimer = window.setInterval(scheduleAhead, 900);
-        musicNodes.push(padFilter, masterGain);
-
-        isMusicPlaying = true;
-        audioToggle.classList.add("is-playing");
-        audioToggle.setAttribute("aria-pressed", "true");
-        audioLabel.textContent = "DJ 节拍运行中";
-        addLog();
+        if (isMusicPlaying) return Promise.resolve();
+        bgMusic.muted = false;
+        bgMusic.volume = 0.42;
+        return bgMusic.play().then(() => {
+          setMusicState(true, "DJ 正在播放");
+          addLog();
+        }).catch(() => {
+          setMusicState(false, "点击启动 DJ");
+        });
       }
 
       function stopMusic() {
-        if (!isMusicPlaying || !audioContext) return;
-        window.clearInterval(beatTimer);
-        const nodesToStop = musicNodes;
-        musicNodes = [];
-        masterGain.gain.cancelScheduledValues(audioContext.currentTime);
-        masterGain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.16);
-        window.setTimeout(() => {
-          for (const node of nodesToStop) {
-            try {
-              if (typeof node.stop === "function") node.stop();
-            } catch (error) {
-            }
-            if (typeof node.disconnect === "function") node.disconnect();
-          }
-        }, 420);
-        isMusicPlaying = false;
-        audioToggle.classList.remove("is-playing");
-        audioToggle.setAttribute("aria-pressed", "false");
-        audioLabel.textContent = "启动 DJ";
+        if (!isMusicPlaying) return;
+        bgMusic.pause();
+        setMusicState(false, "启动 DJ");
+      }
+
+      function tryAutoplayMusic() {
+        startMusic().then(() => {
+          if (!isMusicPlaying) setMusicState(false, "点击启动 DJ");
+        });
+      }
+
+      function startMusicFromUserGesture(event) {
+        if (event.target.closest("#audioToggle")) return;
+        if (!isMusicPlaying) startMusic();
+        window.removeEventListener("pointerdown", startMusicFromUserGesture);
+        window.removeEventListener("keydown", startMusicFromUserGesture);
       }
 
       function toggleMusic() {
@@ -2478,6 +2373,10 @@
         spawnBurst(event.clientX, event.clientY);
       });
       audioToggle.addEventListener("click", toggleMusic);
+      bgMusic.addEventListener("play", () => setMusicState(true, "DJ 正在播放"));
+      bgMusic.addEventListener("pause", () => setMusicState(false, "启动 DJ"));
+      window.addEventListener("pointerdown", startMusicFromUserGesture);
+      window.addEventListener("keydown", startMusicFromUserGesture);
       window.addEventListener("scroll", setScrollVars, { passive: true });
       document.addEventListener("pointerover", (event) => {
         if (event.target.closest("a, button, .tilt")) document.body.classList.add("cursor-active");
@@ -2500,6 +2399,7 @@
       window.setTimeout(() => {
         document.body.classList.add("ready");
         document.body.classList.remove("is-loading");
+        tryAutoplayMusic();
       }, 900);
     </script>
   </body>
