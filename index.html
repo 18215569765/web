@@ -60,6 +60,23 @@
           linear-gradient(90deg, rgba(85, 255, 214, 0.045) 1px, transparent 1px);
         background-size: 44px 44px;
         mask-image: linear-gradient(to bottom, black, transparent 76%);
+        animation: gridDrift 14s linear infinite;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -3;
+        pointer-events: none;
+        background:
+          linear-gradient(112deg, transparent 0 38%, rgba(85, 255, 214, 0.11) 40%, transparent 43%),
+          linear-gradient(248deg, transparent 0 62%, rgba(255, 111, 145, 0.11) 65%, transparent 68%),
+          repeating-linear-gradient(90deg, transparent 0 78px, rgba(255, 196, 93, 0.035) 78px 80px);
+        mix-blend-mode: screen;
+        opacity: 0.68;
+        transform: translate3d(calc(var(--mx, 0) * -0.8), calc(var(--my, 0) * -0.8), 0);
+        animation: circuitSweep 8.5s ease-in-out infinite alternate;
       }
 
       a {
@@ -220,6 +237,40 @@
         animation: trailFade 620ms ease forwards;
       }
 
+      .spark {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 78;
+        width: 7px;
+        height: 7px;
+        pointer-events: none;
+        border-radius: 50%;
+        background: var(--amber);
+        box-shadow:
+          0 0 14px var(--amber),
+          0 0 30px rgba(255, 111, 145, 0.46);
+        transform: translate3d(-50%, -50%, 0);
+        animation: sparkBurst 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+
+      .shockwave {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 77;
+        width: 18px;
+        height: 18px;
+        pointer-events: none;
+        border: 1px solid rgba(85, 255, 214, 0.92);
+        border-radius: 50%;
+        box-shadow:
+          0 0 22px rgba(85, 255, 214, 0.54),
+          inset 0 0 20px rgba(255, 111, 145, 0.22);
+        transform: translate3d(-50%, -50%, 0);
+        animation: shockwave 620ms ease-out forwards;
+      }
+
       .site-shell {
         position: relative;
       }
@@ -341,12 +392,16 @@
         background-size: cover;
         background-position: center;
         transform: scale(1.035) translate3d(var(--mx, 0), var(--my, 0), 0);
-        transition: transform 220ms ease-out;
+        transition:
+          filter 220ms ease-out,
+          transform 220ms ease-out;
+        animation: heroPulse 7s ease-in-out infinite;
       }
 
       .hero::after {
         z-index: -1;
         background:
+          linear-gradient(90deg, transparent, rgba(85, 255, 214, 0.12), transparent),
           repeating-linear-gradient(
             0deg,
             rgba(255, 255, 255, 0.05),
@@ -355,8 +410,10 @@
             transparent 5px
           );
         mix-blend-mode: overlay;
-        opacity: 0.18;
+        background-size: 180% 100%, auto;
+        opacity: 0.24;
         pointer-events: none;
+        animation: videoNoise 1.7s steps(2, end) infinite;
       }
 
       .hud-ring {
@@ -367,9 +424,12 @@
         aspect-ratio: 1;
         z-index: -1;
         border-radius: 50%;
-        border: 1px solid rgba(85, 255, 214, 0.22);
-        opacity: 0.62;
-        animation: slowSpin 18s linear infinite;
+        border: 1px solid rgba(85, 255, 214, 0.32);
+        background:
+          conic-gradient(from 90deg, transparent 0 12deg, rgba(85, 255, 214, 0.32) 13deg 14deg, transparent 15deg 44deg),
+          radial-gradient(circle, transparent 0 56%, rgba(85, 255, 214, 0.08) 57% 58%, transparent 60%);
+        opacity: 0.8;
+        animation: slowSpin 14s linear infinite, hudFlicker 2.6s steps(2, end) infinite;
       }
 
       .hud-ring::before,
@@ -396,12 +456,14 @@
         background: linear-gradient(
           180deg,
           transparent 0%,
-          rgba(85, 255, 214, 0.12) 50%,
+          rgba(85, 255, 214, 0.03) 18%,
+          rgba(85, 255, 214, 0.3) 50%,
+          rgba(255, 111, 145, 0.14) 52%,
           transparent 100%
         );
-        height: 18%;
+        height: 22%;
         transform: translateY(-120%);
-        animation: scan 5.2s ease-in-out infinite;
+        animation: scan 3.8s ease-in-out infinite;
         mix-blend-mode: screen;
       }
 
@@ -444,6 +506,10 @@
         font-weight: 800;
         letter-spacing: 0.18em;
         text-transform: uppercase;
+        box-shadow:
+          inset 0 0 18px rgba(85, 255, 214, 0.08),
+          0 0 26px rgba(85, 255, 214, 0.1);
+        animation: microJitter 4.5s steps(2, end) infinite;
       }
 
       .signal-dot {
@@ -464,6 +530,7 @@
         letter-spacing: 0;
         text-transform: uppercase;
         filter: drop-shadow(0 0 24px rgba(85, 255, 214, 0.14));
+        animation: titleGlow 2.8s ease-in-out infinite alternate;
       }
 
       .glitch {
@@ -485,16 +552,18 @@
 
       .glitch::before {
         color: var(--teal);
+        text-shadow: -3px 0 rgba(85, 255, 214, 0.7);
         transform: translate(2px, 0);
         clip-path: inset(0 0 58% 0);
-        animation: glitchTop 3.2s infinite steps(2, end);
+        animation: glitchTop 1.8s infinite steps(2, end);
       }
 
       .glitch::after {
         color: var(--rose);
+        text-shadow: 4px 0 rgba(255, 111, 145, 0.62);
         transform: translate(-2px, 0);
         clip-path: inset(48% 0 0 0);
-        animation: glitchBottom 2.6s infinite steps(2, end);
+        animation: glitchBottom 2.1s infinite steps(2, end);
       }
 
       .hero-title .accent {
@@ -535,7 +604,8 @@
         transition:
           transform 180ms ease,
           border-color 180ms ease,
-          background 180ms ease;
+          background 180ms ease,
+          box-shadow 180ms ease;
         position: relative;
         overflow: hidden;
       }
@@ -556,13 +626,20 @@
       .button.primary {
         color: #031314;
         border-color: rgba(85, 255, 214, 0.82);
-        background: linear-gradient(135deg, var(--teal), #9effef);
-        box-shadow: 0 18px 40px rgba(85, 255, 214, 0.2);
+        background: linear-gradient(135deg, var(--teal), #9effef, var(--amber));
+        background-size: 180% 180%;
+        box-shadow:
+          0 18px 40px rgba(85, 255, 214, 0.2),
+          0 0 32px rgba(85, 255, 214, 0.22);
+        animation: neonShift 3s ease-in-out infinite;
       }
 
       .button:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px) scale(1.03);
         border-color: rgba(85, 255, 214, 0.74);
+        box-shadow:
+          var(--shadow),
+          0 0 34px rgba(85, 255, 214, 0.18);
       }
 
       .terminal {
@@ -574,11 +651,37 @@
         box-shadow: var(--shadow);
         overflow: hidden;
         backdrop-filter: blur(14px);
+        position: relative;
         transform-style: preserve-3d;
         transition:
           transform 180ms ease,
           border-color 180ms ease,
           box-shadow 180ms ease;
+      }
+
+      .terminal::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(120deg, transparent 0 28%, rgba(85, 255, 214, 0.16) 36%, transparent 44%),
+          repeating-linear-gradient(0deg, rgba(239, 252, 255, 0.05) 0 1px, transparent 1px 10px);
+        opacity: 0.44;
+        mix-blend-mode: screen;
+        transform: translateX(-130%);
+        animation: terminalSweep 4.8s ease-in-out infinite;
+      }
+
+      .terminal::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        box-shadow:
+          inset 0 0 28px rgba(85, 255, 214, 0.1),
+          inset 0 0 80px rgba(255, 111, 145, 0.08);
       }
 
       .terminal:hover {
@@ -608,6 +711,8 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
+        box-shadow: 0 0 14px currentColor;
+        animation: lightBlink 2.4s ease-in-out infinite;
       }
 
       .terminal-lights span:nth-child(1) {
@@ -639,6 +744,8 @@
         font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
         font-size: 13px;
         color: rgba(239, 252, 255, 0.84);
+        position: relative;
+        z-index: 1;
       }
 
       .log-line {
@@ -646,6 +753,7 @@
         gap: 10px;
         min-width: 0;
         word-break: break-word;
+        animation: logIn 360ms ease both;
       }
 
       .log-line span:first-child {
@@ -689,11 +797,26 @@
           transform 180ms ease,
           border-color 180ms ease,
           background 180ms ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::after {
+        content: "";
+        position: absolute;
+        inset: auto 12px 12px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(85, 255, 214, 0.72), transparent);
+        opacity: 0.46;
+        animation: linePing 2.9s ease-in-out infinite;
       }
 
       .stat-card:hover {
         border-color: rgba(85, 255, 214, 0.42);
         background: rgba(7, 22, 28, 0.78);
+        box-shadow:
+          var(--shadow),
+          0 0 32px rgba(85, 255, 214, 0.12);
       }
 
       .stat-label {
@@ -781,7 +904,8 @@
         transition:
           transform 180ms ease,
           border-color 180ms ease,
-          background 180ms ease;
+          background 180ms ease,
+          box-shadow 180ms ease;
         transform-style: preserve-3d;
       }
 
@@ -797,9 +921,29 @@
         transition: transform 220ms ease;
       }
 
+      .dock-card::after {
+        content: "";
+        position: absolute;
+        inset: -60% -90%;
+        background:
+          linear-gradient(115deg, transparent 0 38%, rgba(85, 255, 214, 0.18) 46%, rgba(255, 196, 93, 0.18) 50%, transparent 58%),
+          radial-gradient(circle at var(--px, 50%) var(--py, 50%), rgba(255, 111, 145, 0.16), transparent 28%);
+        opacity: 0;
+        transform: translateX(-28%) rotate(9deg);
+        transition:
+          opacity 180ms ease,
+          transform 520ms ease;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
       .dock-card:hover {
         border-color: rgba(85, 255, 214, 0.48);
         background: rgba(8, 22, 28, 0.78);
+        box-shadow:
+          var(--shadow),
+          0 0 32px rgba(85, 255, 214, 0.15),
+          inset 0 0 30px rgba(255, 111, 145, 0.06);
       }
 
       .dock-card > * {
@@ -808,6 +952,11 @@
 
       .dock-card:hover::before {
         transform: scaleX(1);
+      }
+
+      .dock-card:hover::after {
+        opacity: 1;
+        transform: translateX(30%) rotate(9deg);
       }
 
       .dock-icon {
@@ -820,6 +969,10 @@
         border: 1px solid rgba(255, 255, 255, 0.12);
         color: var(--teal);
         font-weight: 950;
+        box-shadow:
+          inset 0 0 18px rgba(85, 255, 214, 0.1),
+          0 0 16px rgba(85, 255, 214, 0.14);
+        animation: iconFloat 3.2s ease-in-out infinite;
       }
 
       .dock-card h3 {
@@ -1057,6 +1210,166 @@
         }
       }
 
+      @keyframes gridDrift {
+        to {
+          background-position: 44px 44px;
+        }
+      }
+
+      @keyframes circuitSweep {
+        0% {
+          opacity: 0.32;
+          background-position: -180px 0, 160px 0, 0 0;
+        }
+        100% {
+          opacity: 0.76;
+          background-position: 220px 0, -220px 0, 80px 0;
+        }
+      }
+
+      @keyframes sparkBurst {
+        to {
+          opacity: 0;
+          transform: translate(calc(-50% + var(--spark-x)), calc(-50% + var(--spark-y))) scale(0.22);
+        }
+      }
+
+      @keyframes shockwave {
+        to {
+          width: 150px;
+          height: 150px;
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.2);
+        }
+      }
+
+      @keyframes heroPulse {
+        0%,
+        100% {
+          filter: saturate(1.05) contrast(1.03);
+        }
+        50% {
+          filter: saturate(1.26) contrast(1.14) brightness(1.06);
+        }
+      }
+
+      @keyframes videoNoise {
+        0%,
+        100% {
+          background-position: 0 0, 0 0;
+          opacity: 0.18;
+        }
+        50% {
+          background-position: 100% 0, 0 3px;
+          opacity: 0.3;
+        }
+      }
+
+      @keyframes hudFlicker {
+        0%,
+        78%,
+        100% {
+          filter: drop-shadow(0 0 8px rgba(85, 255, 214, 0.28));
+        }
+        82% {
+          filter: drop-shadow(0 0 22px rgba(255, 196, 93, 0.34));
+        }
+      }
+
+      @keyframes microJitter {
+        0%,
+        93%,
+        100% {
+          transform: translate(0, 0);
+        }
+        94% {
+          transform: translate(2px, -1px);
+        }
+        96% {
+          transform: translate(-1px, 1px);
+        }
+      }
+
+      @keyframes titleGlow {
+        from {
+          filter:
+            drop-shadow(0 0 18px rgba(85, 255, 214, 0.16))
+            drop-shadow(0 0 42px rgba(255, 111, 145, 0.08));
+        }
+        to {
+          filter:
+            drop-shadow(0 0 34px rgba(85, 255, 214, 0.28))
+            drop-shadow(0 0 54px rgba(255, 111, 145, 0.18));
+        }
+      }
+
+      @keyframes neonShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      @keyframes terminalSweep {
+        0%,
+        28% {
+          transform: translateX(-130%);
+        }
+        55% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @keyframes lightBlink {
+        0%,
+        100% {
+          opacity: 0.56;
+        }
+        45%,
+        55% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes logIn {
+        from {
+          opacity: 0;
+          transform: translateX(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes linePing {
+        0%,
+        100% {
+          transform: scaleX(0.22);
+          opacity: 0.22;
+        }
+        50% {
+          transform: scaleX(1);
+          opacity: 0.72;
+        }
+      }
+
+      @keyframes iconFloat {
+        0%,
+        100% {
+          transform: translateZ(28px) translateY(0);
+        }
+        50% {
+          transform: translateZ(28px) translateY(-4px);
+        }
+      }
+
       @keyframes spin {
         to {
           transform: rotate(1turn);
@@ -1082,7 +1395,7 @@
       @keyframes trailFade {
         to {
           opacity: 0;
-          transform: translate3d(-50%, -50%, 0) scale(2.9);
+          transform: translate(-50%, -50%) scale(2.9);
         }
       }
 
@@ -1610,9 +1923,33 @@
         if (isTouch) return;
         const trail = document.createElement("span");
         trail.className = "trail";
-        trail.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+        trail.style.left = `${x}px`;
+        trail.style.top = `${y}px`;
         document.body.appendChild(trail);
         window.setTimeout(() => trail.remove(), 650);
+      }
+
+      function spawnBurst(x, y) {
+        if (isTouch) return;
+        const shockwave = document.createElement("span");
+        shockwave.className = "shockwave";
+        shockwave.style.left = `${x}px`;
+        shockwave.style.top = `${y}px`;
+        document.body.appendChild(shockwave);
+        window.setTimeout(() => shockwave.remove(), 660);
+
+        for (let i = 0; i < 14; i += 1) {
+          const spark = document.createElement("span");
+          const angle = (Math.PI * 2 * i) / 14 + Math.random() * 0.5;
+          const distance = 44 + Math.random() * 96;
+          spark.className = "spark";
+          spark.style.left = `${x}px`;
+          spark.style.top = `${y}px`;
+          spark.style.setProperty("--spark-x", `${Math.cos(angle) * distance}px`);
+          spark.style.setProperty("--spark-y", `${Math.sin(angle) * distance}px`);
+          document.body.appendChild(spark);
+          window.setTimeout(() => spark.remove(), 820);
+        }
       }
 
       function setupReveal() {
@@ -1641,6 +1978,8 @@
             const y = (event.clientY - rect.top) / rect.height - 0.5;
             const rotateX = y * -9;
             const rotateY = x * 12;
+            item.style.setProperty("--px", `${(x + 0.5) * 100}%`);
+            item.style.setProperty("--py", `${(y + 0.5) * 100}%`);
             item.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
           });
           item.addEventListener("pointerleave", () => {
@@ -1663,6 +2002,9 @@
       });
       window.addEventListener("pointermove", (event) => {
         if (Math.random() > 0.42) spawnTrail(event.clientX, event.clientY);
+      });
+      window.addEventListener("pointerdown", (event) => {
+        spawnBurst(event.clientX, event.clientY);
       });
       window.addEventListener("scroll", setScrollVars, { passive: true });
       document.addEventListener("pointerover", (event) => {
